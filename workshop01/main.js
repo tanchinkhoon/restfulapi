@@ -15,11 +15,11 @@ const MAP_URL='https://maps.googleapis.com/maps/api/staticmap'
 const NEWS_URL = 'https://newsapi.org/v2/top-headlines'
 
 const makeInvocation = function(url) {
-    return ((params) => 
+    return ((params) =>
         new Promise((resolve, reject) => {
             request.get(url, ('qs' in params? params: { qs: params }),
                 (err, h, body) => {
-                    if (err) 
+                    if (err)
                         return reject(err);
                     if (h.headers['content-type'].startsWith('application/json'))
                         return resolve(JSON.parse(body));
@@ -55,8 +55,8 @@ app.get('/map', (req, resp) => {
     //Use the exact query parameter names as keys
     //Latitude and longitude from coord object above
     //API key is in keys.map
-    const params = {
-    }
+    //const params = {
+    //}
 
     getMap({ qs: params, encoding: null})
         .then(result => {
@@ -80,8 +80,11 @@ app.get('/information', (req, resp) => {
     //Use the exact query parameter names as keys
     //Weather for city is in cityName variable
     //API key is in keys.weather
-    const params = {
+    const params = {q:cityName,
+      APPID:keys.weather
     }
+
+//    console.info('>>' , params)
 
     getWeather(params)
         .then(result => {
@@ -92,7 +95,8 @@ app.get('/information', (req, resp) => {
             //Use the exact query parameter names as keys
             //The 2 character country code is found in countryCode variable
             //API key is in keys.news
-            const params = {
+            const params = {country:countryCode,
+              apiKey:keys.news
             }
             return (Promise.all([ result, getNews(params) ]));
         })
@@ -133,9 +137,9 @@ app.get('/information', (req, resp) => {
             })
         })
         .catch(error => {
-            resp.status(400); 
-            resp.type('text/plain'); 
-            resp.send(error); 
+            resp.status(400);
+            resp.type('text/plain');
+            resp.send(error);
             return;
         })
 
