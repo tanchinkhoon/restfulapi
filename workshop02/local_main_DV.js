@@ -1,6 +1,7 @@
 const range = require('express-range')
 const compression = require('compression')
-
+//load the cors library
+const cors = require ('cors')
 const express = require('express')
 
 const data = require('./zips')
@@ -10,7 +11,8 @@ const CitiesDB = require('./zipsdb')
 const db = CitiesDB(data);
 
 const app = express();
-
+//add cors
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -32,6 +34,7 @@ app.get('/api/states',
 )
 
 // TODO GET /api/state/:state
+//Get /api/state/CA state=CA
 app.get('/api/state/:state',
 	(req,resp) => { //handler
 		// Read the value from the route :state
@@ -68,53 +71,29 @@ app.get('/api/cityId/:cityId',
 )
 
 // TODO POST /api/city
-app.post("/api/city",
-	(req,resp) => {
-		const body = req.body;
-		console.log("payload =", body)
-		if (!db.validateForm(body)) {
-			console.log('error')
-			resp.status(400)
+app.post('/api/city',
+		(req,resp) => { // handler
+			const body = req.body
+			console.info ('body =', body)
+			if (!db.validateForm(body)) {
+				resp.status(400)
+				resp.type('application/json')
+		    resp.json({'message':'incomplete form'})
+				console.info ('valid =', 'no')
+				return
+			}
+//      reformat location
+//   		const array = body['loc'].split(',').map(Number)
+// 		body['loc'] = array
+//  	  console.info ('body =', body['loc'])
+			db.insertCity(body)
+			resp.status(201)
 			resp.type('application/json')
-			resp.json({'message':'imcomplete form'})
-			return
+			resp.json({'message':'created'})
 		}
-		//we passed validation
-		//insert this data into the database
-		//TODO loc - "number,number" => [number, number]
-		console.log("status = OK")
-		db.insertCity(body)
-		resp.status(201)
-		resp.type('application/json')
-		resp.json({message: 'created'})
-	}
-)
+	)
 
-// Optional workshop
-// TODO HEAD /api/state/:state
-// IMPORTANT: HEAD must be place before GET for the
-// same resource. Otherwise the GET handler will be invoked
-
-
-// TODO GET /state/:state/count
-app.get('/api/state/:state/count',
-    (req, resp) => {
-        const state = req.params.state
-        const count = db.countCitiesInState(state)
-        const result = {
-            state: state,
-            numOfCities: count,
-            timestamp: (new Date()).toDateString()
-        }
-
-        resp.status(200);
-        // set Content-Type
-        resp.type('application/json')
-        resp.json(result)
-    }
-)
-
-// TODO GET /api/city/:name
+// TODO GET /api/city/:cityId
 app.get('/api/cityName/:cityName',
 		(req,resp) => { //handler
 			const cityName = req.params.cityName
@@ -132,7 +111,7 @@ app.get('/api/cityName/:cityName',
 
 // End of workshop
 
-const PORT = parseInt(process.argv[2] || process.env.APP_PORT) || 3000;
+const PORT = parseInt(process.argv[2] || process.env.APP_PORT) || 3030;
 app.listen(PORT, () => {
 	console.info(`Application started on port ${PORT} at ${new Date()}`);
 });
