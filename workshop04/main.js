@@ -1,9 +1,6 @@
 const { join } = require('path');
 const fs = require('fs');
-const uuid = require('uuid/v1')
 
-const cacheControl = require('express-cache-controller')
-const preconditions = require('express-preconditions')
 const cors = require('cors');
 const range = require('express-range')
 const compression = require('compression')
@@ -33,39 +30,23 @@ const db = CitiesDB({
 
 const app = express();
 
-//Disable etag for this workshop
-app.set('etag', false);
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Start of workshop
 
 // TODO 1/2 Load schemans
 
 
 
-
-// TODO 2/2 Copy your routes from workshop03 here
-
-
-
+// Start of workshop
+// TODO 2/2 Copy your routes from workshop02 here
 
 
 // End of workshop
 
-app.get('/health', (req, resp) => {
-	console.info(`health check: ${new Date()}`)
-	resp.status(200)
-		.type('application/json')
-		.json({ time: (new Date()).toGMTString() })
-})
-
 app.use('/schema', express.static(join(__dirname, 'schema')));
 
 app.use((error, req, resp, next) => {
-
 	if (error instanceof ValidationError) {
 		console.error('Schema validation error: ', error)
 		return resp.status(400).type('application/json').json({ error: error });
@@ -87,13 +68,6 @@ db.getDB()
 		console.info('Connected to MongoDB. Starting application');
 		app.listen(PORT, () => {
 			console.info(`Application started on port ${PORT} at ${new Date()}`);
-			console.info(`\tService id: ${serviceId}`);
-
-			// TODO 3/3 Add service registration here
-
-
-
-
 		});
 	})
 	.catch(error => {
