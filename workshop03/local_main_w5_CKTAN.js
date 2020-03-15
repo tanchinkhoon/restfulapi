@@ -32,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+//Everything is rigth
 
 // Start of workshop
 var count=0 //add to rectify
@@ -83,8 +84,8 @@ new OpenAPIValidator({
         // Read the value from the route :state
         const state = req.params.state
         // Read te query string
-        const offset = parseInt(req.query.offset) || 0; //If parseInt returns False, default is 0
-        const limit = parseInt(req.query.limit) || 10; //If parseInt returns False, default is 10
+        const offset = parseInt(req.query.offset) || 0; //If parseInt refetrns False, default is 0
+        const limit = parseInt(req.query.limit) || 10; //If parseInt reterns False, default is 10
         // 10 result from the top
         const result = db.findCitiesByState(state,
           {offset, limit
@@ -101,7 +102,7 @@ new OpenAPIValidator({
       }
     )
 
-    //workshop03 above    
+    //workshop02 above    
     app.use('/schema', express.static(join(__dirname, 'schema')));
 
     app.use((error, req, resp, next) => {

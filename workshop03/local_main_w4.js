@@ -1,7 +1,7 @@
 const { join } = require('path');
 const fs = require('fs');
 
-//load the library
+// Load the library
 const preconditions = require('express-preconditions');
 
 const cors = require('cors');
@@ -9,7 +9,7 @@ const range = require('express-range')
 const compression = require('compression')
 
 const { Validator, ValidationError } = require('express-json-validator-middleware')
-const OpenAPIValidator = require('express-openapi-validator').OpenApiValidator;
+const  OpenAPIValidator  = require('express-openapi-validator').OpenApiValidator;
 
 const schemaValidator = new Validator({ allErrors: true, verbose: true });
 
@@ -23,8 +23,8 @@ const db = CitiesDB(data);
 
 const app = express();
 
-//Disable express' etag
-app.set('etag',false)
+// Disable express etag.
+app.set('etag', false)
 
 app.use(cors());
 app.use(express.json());
@@ -34,9 +34,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Start of workshop
-var count=0 //add to rectify
+var count=0
 
-// TODO 1/2 Load schemans
+// TODO 1/2 Load schemas
 new OpenAPIValidator({
     apiSpec: join(__dirname, 'schema', 'zips.yaml')
 }).install(app)
@@ -60,7 +60,7 @@ new OpenAPIValidator({
         }
     )
 
-    //Use Etag for content based caching
+    // Use Etag for Content Based Caching.
     const options = {
         stateAsync: (req) => {
             const state = req.params.state;
@@ -74,65 +74,65 @@ new OpenAPIValidator({
         }
     }
 
-    //TODO GET /api/state/:state
-    //Get /api/state/CA state=CA
+    // TODO GET /api/state/:state
+    // Added by Andrew Goh, 2020-03-11.
     app.get('/api/state/:state',
-    //Use Etag here before the request handler
-      preconditions(options),
-      (req, resp) => { //This is request handler 
-        // Read the value from the route :state
-        const state = req.params.state
-        // Read te query string
-        const offset = parseInt(req.query.offset) || 0; //If parseInt returns False, default is 0
-        const limit = parseInt(req.query.limit) || 10; //If parseInt returns False, default is 10
-        // 10 result from the top
-        const result = db.findCitiesByState(state,
-          {offset, limit
-        });
-        // {offset: offset,limit:limit})
-        resp.status(200)
-        //set content type
-        resp.type('application/json')
-        resp.set('X-generated-on', (new Date()).toDateString())
-        resp.set('Access-Control-Allow-Origin', '*')
-        //Etag
-        resp.set("etag",`"${state}_${offset}_${limit}"`)
-        resp.json(result)
-      }
+        // Use the Etag here before the Request handler.
+        preconditions(options),
+        (req, resp) => { // Request handler
+            // Read the value from the route :state
+            const state = req.params.state
+
+            // Read the query string
+            const offset = parseInt(req.query.offset) || 0;	// If parseInt returns False, default to 0.
+            const limit = parseInt(req.query.limit) || 10;	// If parseInt returns False, default to 10.
+
+            // Default 10 records
+            const result = db.findCitiesByState(state,
+                {offset, limit}		// Shortform if key = value variable.
+                // {offset: offset, limit: limit}
+            );
+            // status code
+            resp.status(200)
+
+            // set Content-Type
+            resp.type('application/json')
+
+            // Set E-tag
+            resp.set("ETag", `"${state}_${offset}_${limit}"`)
+
+            resp.json(result)
+        }
     )
 
-    //workshop03 above    
+    // workshop02 above ^^^
     app.use('/schema', express.static(join(__dirname, 'schema')));
 
     app.use((error, req, resp, next) => {
 
-      if (error instanceof ValidationError) {
-        console.error('Schema validation error: ', error)
-        return resp.status(400).type('application/json').json({ error: error });
-      }
+        if (error instanceof ValidationError) {
+            console.error('Schema validation error: ', error)
+            return resp.status(400).type('application/json').json({ error: error });
+        }
 
-      else if (error.status) {
-        console.error('OpenAPI specification error: ', error)
-        return resp.status(400).type('application/json').json({ error: error });
-      }
+        else if (error.status) {
+            console.error('OpenAPI specification error: ', error)
+            return resp.status(400).type('application/json').json({ error: error });
+        }
 
-      console.error('Error: ', error);
-
-      resp.status(400).type('application/json').json({ error: error });
+        console.error('Error: ', error);
+        resp.status(400).type('application/json').json({ error: error });
 
     });
 
     const PORT = parseInt(process.argv[2] || process.env.APP_PORT) || 3000;
     app.listen(PORT, () => {
-      console.info(`Application started on port ${PORT} at ${new Date()}`);
+        console.info(`Application started on port ${PORT} at ${new Date()}`);
     });
-  })
-  .catch(error => {
-    console.log("error", error)
-  })
-
-
-// Start of workshop
-// TODO 2/2 Copy your routes from workshop02 here
+})
+.catch(error => {
+    // There is an error with our yaml file.
+    console.error('Error: ', error);
+})
 
 // End of workshop

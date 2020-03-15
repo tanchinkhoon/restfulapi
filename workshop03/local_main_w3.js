@@ -38,40 +38,40 @@ var count=0 //add to rectify
 
 // TODO 1/2 Load schemans
 new OpenAPIValidator({
-    apiSpec: join(__dirname, 'schema', 'zips.yaml')
+  apiSpec: join(__dirname, 'schema', 'zips.yaml')
 }).install(app)
-.then(() => {
-// workshop02
+  .then(() => {
+    // workshop02
     app.get('/api/states',
-        (req, resp) => { // Request handler
-            count++
-            console.info('In GET /api/states: ', count)
-            const result = db.findAllStates();
-            // status code
-            resp.status(200)
-            // Use Cache-Control in headers for Time Based Caching.
-            // Set header, public, age = 5 min
-            resp.set('Cache-Control', 'public, maxAge=300')
-            // set Content-Type
-            resp.type('application/json')
-            resp.set('X-generated-on', (new Date()).toDateString())
-            resp.set('Access-Control-Allow-Origin', '*')
-            resp.json(result)
-        }
+      (req, resp) => { //request handler
+        count++ //add count to rectify
+        console.info('In GET /api/states:', count) //add count rectify
+        const result = db.findAllStates();
+        // status code
+        resp.status(200)
+        //Use cache control in header for time based caching
+        //Set cache, public, age = 5 min
+        resp.set('Cache-Control', 'public, max-age=300')
+        //set content type
+        resp.type('application/json')
+        resp.set('X-generated-on', (new Date()).toDateString())
+        resp.set('Access-Control-Allow-Origin', '*')
+        resp.json(result)
+      }
     )
 
     //Use Etag for content based caching
     const options = {
-        stateAsync: (req) => {
-            const state = req.params.state;
-            const offset = parseInt(req.query.offset) || 0;
-            const limit = parseInt(req.query.limit) || 10;
-            return Promise.resolve({
-                // state_offset_limit
-                // E.g. CA_0_10
-                etag: `"${state}_${offset}_${limit}"`
-            })
-        }
+      stateAsync: (req) => {
+        const state = req.params.state;
+        const offset = parseInt(req.query.offset) || 0;
+        const limit = paraInt(req.query.limit) || 10;
+        return Promise.resolve({
+          //satte_offset_limit
+          //Exanple: CA_0_10
+          etag: `"${state}_${offset}_${limit}"`
+        })
+      }
     }
 
     //TODO GET /api/state/:state
@@ -83,25 +83,61 @@ new OpenAPIValidator({
         // Read the value from the route :state
         const state = req.params.state
         // Read te query string
-        const offset = parseInt(req.query.offset) || 0; //If parseInt returns False, default is 0
-        const limit = parseInt(req.query.limit) || 10; //If parseInt returns False, default is 10
+        const offset = parseInt(req.query.offset) || 0; //If parseInt refetrns False, default is 0
+        const limit = parseInt(req.query.limit) || 10; //If parseInt reterns False, default is 10
         // 10 result from the top
         const result = db.findCitiesByState(state,
-          {offset, limit
-        });
-        // {offset: offset,limit:limit})
+          {offset, limit});
+        // {offset: offset,limit:limit})}
         resp.status(200)
         //set content type
         resp.type('application/json')
-        resp.set('X-generated-on', (new Date()).toDateString())
+        resp.set('X-generated-on', (new Date()).toDate9String())
         resp.set('Access-Control-Allow-Origin', '*')
         //Etag
-        resp.set("etag",`"${state}_${offset}_${limit}"`)
+        resp.set('etag',`"${state}_${offset}_${limit}"`)
         resp.json(result)
       }
     )
 
-    //workshop03 above    
+    // TODO GET /api/city/:cityId
+    app.get('/api/cityId/:cityId',
+      (req, resp) => { //handler
+        const cityId = req.params.cityId
+        const result = db.findCityById(cityId)
+        // status code
+        resp.status(200)
+        //set content type
+        resp.type('application/json')
+        resp.set('X-generated-on', (new Date()).toDateString())
+        resp.set('Acess-Conrol-Allow-Origin', '*')
+        resp.json(result)
+      }
+    )
+
+    // TODO POST /api/city
+    app.post('/api/city',
+      (req, resp) => { // handler
+        const body = req.body
+        //			console.info ('body =', body)
+        if (!db.validateForm(body)) {
+          resp.status(400)
+          resp.type('application/json')
+          resp.json({ 'message': 'incomplete form' })
+          console.info('valid =', 'no')
+          return
+        }
+        //      reformat location
+        const array = body['loc'].split(',').map(Number)
+        body['loc'] = array
+        console.info('body =', body['loc'])
+        db.insertCity(body)
+        resp.status(201)
+        resp.type('application/json')
+        resp.json({ 'message': 'created' })
+      }
+    )
+
     app.use('/schema', express.static(join(__dirname, 'schema')));
 
     app.use((error, req, resp, next) => {
@@ -129,6 +165,7 @@ new OpenAPIValidator({
   })
   .catch(error => {
     console.log("error", error)
+
   })
 
 
