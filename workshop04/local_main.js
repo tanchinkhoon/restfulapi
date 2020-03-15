@@ -131,8 +131,4 @@ new OpenAPIValidator({
     console.log("error", error)
   })
 
-
-// Start of workshop
-// TODO 2/2 Copy your routes from workshop02 here
-
 // End of workshop
