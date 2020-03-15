@@ -23,7 +23,7 @@ const db = CitiesDB(data);
 
 const app = express();
 
-//Disable express' etag
+//Disable express etag
 app.set('etag',false)
 
 app.use(cors());
