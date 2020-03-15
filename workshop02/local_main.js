@@ -26,7 +26,7 @@ app.get('/api/states',
 		//set content type
 		resp.type('application/json')
 		resp.set('X-generated-on',(new Date()).toDateString())
-		resp.set('Acess-Conrol-Allow-Origin','*')
+		resp.set('Acess-Control-Allow-Origin','*')
 		resp.json(result)
 	}
 )
@@ -47,7 +47,7 @@ app.get('/api/state/:state',
 		//set content type
 		resp.type('application/json')
 		resp.set('X-generated-on',(new Date()).toDateString())
-		resp.set('Acess-Conrol-Allow-Origin','*')
+		resp.set('Acess-Control-Allow-Origin','*')
 		resp.json(result)
 	}
 )
@@ -62,7 +62,7 @@ app.get('/api/cityId/:cityId',
 		//set content type
 		resp.type('application/json')
 		resp.set('X-generated-on',(new Date()).toDateString())
-		resp.set('Acess-Conrol-Allow-Origin','*')
+		resp.set('Acess-Control-Allow-Origin','*')
 		resp.json(result)
 	}
 )
@@ -124,7 +124,7 @@ app.get('/api/cityName/:cityName',
 			//set content type
 			resp.type('application/json')
 			resp.set('X-generated-on',(new Date()).toDateString())
-			resp.set('Acess-Conrol-Allow-Origin','*')
+			resp.set('Acess-Control-Allow-Origin','*')
 			resp.json(result)
 		}
 	)
